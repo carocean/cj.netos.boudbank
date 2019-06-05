@@ -20,7 +20,7 @@
 		]
 	},
 	assemblyInfo : {
-		assemblyTitle : "ENBKEngine",
+		assemblyTitle : "BDBKEngine",
 		assemblyResource:"site=/site;http.root=$(site)/web;http.jss=$(site)/jss/http;ws.jss=$(site)/jss/ws",
 		assemblyDescription : "cj工作室出品，lns平台制造",
 		assemblyConfiguration : "",
