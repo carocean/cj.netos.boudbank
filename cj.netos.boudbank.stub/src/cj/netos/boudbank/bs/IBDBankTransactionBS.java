@@ -1,16 +1,19 @@
 package cj.netos.boudbank.bs;
 
 import java.math.BigDecimal;
+import java.util.Map;
+
+import cj.netos.boudbank.args.EInvesterType;
 
 public interface IBDBankTransactionBS {
 
-	void cashoutBill(String key, String balanceType, String cashoutor, String identity, BigDecimal reqAmount,
-			String memo);
+	Map<String,Object> cashoutBill(String key, String balanceType, String cashoutor, String identity, BigDecimal reqAmount,
+			String memo,String informAddress);
 
-	void investBill(String key, String depositor, BigDecimal amount);
+	Map<String,Object> investBill(String key, String invester, BigDecimal amount,EInvesterType type,String informAddress);
 
-	void exchangeBill(String key, String exchanger, BigDecimal bondQuantities);
+	Map<String,Object> exchangeBill(String key, String exchanger, BigDecimal bondQuantities,String informAddress);
 
-	void issueStockBill(String key, String issuer, BigDecimal bondQuantities);
+	Map<String,Object> issueStockBill(String key, String issuer, BigDecimal bondQuantities,String informAddress);
 
 }

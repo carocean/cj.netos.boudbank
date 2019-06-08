@@ -3,7 +3,7 @@ package cj.netos.boudbank.bs;
 import cj.netos.boudbank.args.BankState;
 
 public interface IBDBankStateBS {
-
+	static String TABLE_BANK_STATE="bstates";
 	void save(BankState state);
 
 	void revokeBank(String bankCode);
