@@ -15,10 +15,6 @@ import cj.studio.gateway.stub.annotation.CjStubService;
 
 @CjStubService(bindService = "/asset/individual.service", usage = "个人资产")
 public interface IBDBankIndividualAssetStub {
-	@CjStubMethod(usage = "用户债券余额")
-	@CjStubReturn(type = BigDecimal.class, usage = "用户的债券余额")
-	BigDecimal boudBalance(@CjStubInParameter(key = "bank", usage = "银行") String bank,
-			@CjStubInParameter(key = "user", usage = "用户") String user);
 
 	@CjStubMethod(usage = "投单笔数")
 	long depositBillCount(@CjStubInParameter(key = "bank", usage = "银行") String bank,

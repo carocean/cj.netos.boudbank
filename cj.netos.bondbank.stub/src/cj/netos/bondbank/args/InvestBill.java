@@ -10,16 +10,15 @@ public class InvestBill {
 	long intime;
 	BigDecimal merchantBondRate;// 对商户负债率
 	BigDecimal customerBondRate;// 对消费者负债率
-	BigDecimal feeRate;// 如果是消费者的白单，则商户银行收取的服务费率
+	BigDecimal feeBondRate;// 如果是消费者的白单，则商户银行收取的服务费率，提拥就不是从投单的现金中提而是从购得的债券按拥金比例提取给商家merchantBondQuantities，其余是消费者的customerBondQuantities
 	BigDecimal merchantBondAmount;// 对商户负债金，也是商户以此金额向金证银行购入债券
-	BigDecimal merchantDepositAmount;//商户可存入债券银行的金额
+	BigDecimal merchantSelfAmount;// 商户自有金，是买债余下的金额称为自有金，商家可随时提出
 	BigDecimal customerBondAmount;// 对消费者负债金
 	BigDecimal totalBondAmount;// 银行总负债
-	BigDecimal feeAmount;// 如果是消费者的白单，则商户银行收取的服务费
 	// 以下在收到fsbank的通知后计算
 	BigDecimal bondQuantities;// 购买到的债券数量
-	BigDecimal merchantBondQuantities;//商户分得的债券数量
-	BigDecimal customerBondQuantities;//消费者分得的债券数量
+	BigDecimal merchantBondQuantities;// 商户分得的债券数量
+	BigDecimal customerBondQuantities;// 消费者分得的债券数量
 	BigDecimal bondFaceValue;// 债券面值
 	BigDecimal bondPrice;// 当时买债时的债券价格
 	BigDecimal tailAmount;// 尾金
@@ -28,24 +27,31 @@ public class InvestBill {
 	public InvestBill() {
 		type = EInvesterType.merchant;
 	}
+
 	public BigDecimal getMerchantBondQuantities() {
 		return merchantBondQuantities;
 	}
+
 	public void setMerchantBondQuantities(BigDecimal merchantBondQuantities) {
 		this.merchantBondQuantities = merchantBondQuantities;
 	}
-	public BigDecimal getMerchantDepositAmount() {
-		return merchantDepositAmount;
-	}
+
 	public BigDecimal getCustomerBondQuantities() {
 		return customerBondQuantities;
 	}
+
 	public void setCustomerBondQuantities(BigDecimal customerBondQuantities) {
 		this.customerBondQuantities = customerBondQuantities;
 	}
-	public void setMerchantDepositAmount(BigDecimal merchantDepositAmount) {
-		this.merchantDepositAmount = merchantDepositAmount;
+
+	public BigDecimal getMerchantSelfAmount() {
+		return merchantSelfAmount;
 	}
+
+	public void setMerchantSelfAmount(BigDecimal merchantSelfAmount) {
+		this.merchantSelfAmount = merchantSelfAmount;
+	}
+
 	public String getInformAddress() {
 		return informAddress;
 	}
@@ -118,12 +124,12 @@ public class InvestBill {
 		this.customerBondRate = customerBondRate;
 	}
 
-	public BigDecimal getFeeRate() {
-		return feeRate;
+	public BigDecimal getFeeBondRate() {
+		return feeBondRate;
 	}
 
-	public void setFeeRate(BigDecimal feeRate) {
-		this.feeRate = feeRate;
+	public void setFeeBondRate(BigDecimal feeBondRate) {
+		this.feeBondRate = feeBondRate;
 	}
 
 	public BigDecimal getMerchantBondAmount() {
@@ -148,14 +154,6 @@ public class InvestBill {
 
 	public void setTotalBondAmount(BigDecimal totalBondAmount) {
 		this.totalBondAmount = totalBondAmount;
-	}
-
-	public BigDecimal getFeeAmount() {
-		return feeAmount;
-	}
-
-	public void setFeeAmount(BigDecimal feeAmount) {
-		this.feeAmount = feeAmount;
 	}
 
 	public BigDecimal getBondQuantities() {

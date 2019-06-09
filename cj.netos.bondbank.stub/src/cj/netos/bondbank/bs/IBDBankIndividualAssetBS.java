@@ -10,7 +10,6 @@ import cj.netos.bondbank.args.InvestBill;
 
 public interface IBDBankIndividualAssetBS {
 
-	BigDecimal boudBalance(String bank, String user);
 
 	List<BondToTYBill> pageBondToTYBill(String bank, String user, int currPage, int pageSize);
 
@@ -33,5 +32,6 @@ public interface IBDBankIndividualAssetBS {
 	BigDecimal totalInvestBillAmount(String bank, String user);
 
 	BigDecimal totalExchangeBillAmount(String bank, String user);
+
 
 }

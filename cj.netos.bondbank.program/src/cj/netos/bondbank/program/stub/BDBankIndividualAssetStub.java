@@ -16,10 +16,6 @@ import cj.studio.gateway.stub.GatewayAppSiteRestStub;
 public class BDBankIndividualAssetStub extends GatewayAppSiteRestStub implements IBDBankIndividualAssetStub {
 	@CjServiceRef(refByName = "BDBKEngine.bdBankIndividualAssetBS")
 	IBDBankIndividualAssetBS bdBankIndividualAssetBS;
-	@Override
-	public BigDecimal boudBalance(String bank, String user) {
-		return bdBankIndividualAssetBS.boudBalance(bank,user);
-	}
 
 	@Override
 	public long depositBillCount(String bank, String depositor) {
