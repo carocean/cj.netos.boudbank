@@ -95,8 +95,8 @@ task release(type: Copy) {
 			println 'be 环境发布完毕!'
 		}
 }
-release.dependsOn ":cj.netos.boudbank.stub:release"
-release.dependsOn ":cj.netos.boudbank.program:release"
-release.dependsOn ":cj.netos.boudbank.plugin.BDBKEngine:release"
-tasks.getByPath(':cj.netos.boudbank.program:release').mustRunAfter tasks.getByPath(':cj.netos.boudbank.stub:release')
+release.dependsOn ":cj.netos.bondbank.stub:release"
+release.dependsOn ":cj.netos.bondbank.program:release"
+release.dependsOn ":cj.netos.bondbank.plugin.BDBKEngine:release"
+tasks.getByPath(':cj.netos.bondbank.program:release').mustRunAfter tasks.getByPath(':cj.netos.bondbank.stub:release')
 

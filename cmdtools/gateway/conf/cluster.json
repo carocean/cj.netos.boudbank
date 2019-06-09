@@ -1,1 +1,1 @@
-{"valids":[{"name":"boudbank","uris":["app://boudbank:way"],"props":{}}],"invalids":[]}
+{"valids":[{"name":"/backend/uc/","uris":["http://localhost:9090"],"props":{}},{"name":"bondbank","uris":["app://bondbank:way"],"props":{}},{"name":"/backend/fsbank/","uris":["http://localhost:20000"],"props":{}}],"invalids":[]}

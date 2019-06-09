@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>cj.netos.boudbank</name>
+	<name>cj.netos.bondbank</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -17,7 +17,7 @@
 	</natures>
 	<filteredResources>
 		<filter>
-			<id>1559443274206</id>
+			<id>1560063407312</id>
 			<name></name>
 			<type>26</type>
 			<matcher>
@@ -25,19 +25,19 @@
 				<arguments>
 					<matcher>
 						<id>org.eclipse.ui.ide.multiFilter</id>
-						<arguments>1.0-projectRelativePath-equals-true-false-cj.netos.boudbank.stub</arguments>
+						<arguments>1.0-projectRelativePath-equals-true-false-cj.netos.bondbank.program</arguments>
 					</matcher>
 					<matcher>
 						<id>org.eclipse.ui.ide.multiFilter</id>
-						<arguments>1.0-projectRelativePath-equals-true-false-cj.netos.boudbank.plugin.BDBKEngine</arguments>
+						<arguments>1.0-projectRelativePath-equals-true-false-cj.netos.bondbank.main</arguments>
 					</matcher>
 					<matcher>
 						<id>org.eclipse.ui.ide.multiFilter</id>
-						<arguments>1.0-projectRelativePath-equals-true-false-cj.netos.boudbank.main</arguments>
+						<arguments>1.0-projectRelativePath-equals-true-false-cj.netos.bondbank.plugin.BDBKEngine</arguments>
 					</matcher>
 					<matcher>
 						<id>org.eclipse.ui.ide.multiFilter</id>
-						<arguments>1.0-projectRelativePath-equals-true-false-cj.netos.boudbank.program</arguments>
+						<arguments>1.0-projectRelativePath-equals-true-false-cj.netos.bondbank.stub</arguments>
 					</matcher>
 				</arguments>
 			</matcher>
