@@ -1,15 +1,17 @@
 package cj.netos.bondbank.plugin.BDBKEngine.bs;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 import cj.lns.chip.sos.cube.framework.ICube;
 import cj.lns.chip.sos.cube.framework.TupleDocument;
+import cj.netos.bondbank.args.CashoutBill;
 import cj.netos.bondbank.args.EInvesterType;
 import cj.netos.bondbank.args.ExchangeBill;
 import cj.netos.bondbank.args.IndividualBalance;
 import cj.netos.bondbank.args.InvestBill;
 import cj.netos.bondbank.bs.IBDBalanceBS;
-import cj.netos.bondbank.bs.IBDBankIndividualAssetBS;
 import cj.netos.bondbank.bs.IBDBankInfoBS;
 import cj.netos.bondbank.bs.IBDBankPropertiesBS;
 import cj.netos.bondbank.bs.IBDBankTransactionBS;
@@ -34,8 +36,7 @@ public class BDBankTransactionBS implements IBDBankTransactionBS, BigDecimalCons
 	IBDBalanceBS bdBalanceBS;
 	@CjServiceRef
 	IBDBankInfoBS bdBankInfoBS;
-	@CjServiceRef
-	IBDBankIndividualAssetBS bdBankIndividualAccountAssetBS;
+
 	ICube cubeBank;
 	@CjStubRef(remote = "rest://backend/fsbank/", stub = IFSBankTransactionStub.class)
 	IFSBankTransactionStub fsBankTransactionStub;
@@ -49,9 +50,29 @@ public class BDBankTransactionBS implements IBDBankTransactionBS, BigDecimalCons
 	}
 
 	@Override
-	public void cashoutBill(String key, String balanceType, String cashoutor, String identity, BigDecimal reqAmount,
-			String memo, String informAddress) {
-		// TODO Auto-generated method stub
+	public Map<String, Object> cashoutBill(String bank, String cashoutor, BigDecimal amount, String memo) {
+		// 提现：到银行的个人账户提现出来，一般是提出来放到个人钱包。
+		BigDecimal cashAmountBalance = bdBalanceBS.getIndividualCashAmountBalance(bank, cashoutor);
+		if (amount.compareTo(cashAmountBalance) > 0) {
+			throw new EcmException(String.format("余额不足：%s>%s", amount, cashAmountBalance));
+		}
+		BigDecimal balance = this.bdBalanceBS.decBankCashAmount(bank,cashoutor, amount);
+		CashoutBill bill = new CashoutBill();
+		bill.setAmount(amount);
+		bill.setCashoutor(cashoutor);
+		bill.setCtime(System.currentTimeMillis());
+		bill.setMemo(memo);
+		bill.setBalance(balance);
+		String id=getBankCube(bank).saveDoc(TABLE_Cashouts, new TupleDocument<>(bill));
+		bill.setCode(id);
+		
+		Map<String, Object>map=new HashMap<String, Object>();
+		map.put("source", bill.getCode());
+		map.put("cashoutor", bill.getCashoutor());
+		map.put("amount", bill.getAmount());
+		map.put("dealTime", bill.getCtime());
+		map.put("balance", bill.getBalance());
+		return map;
 	}
 
 	// 记账（存入informAddress在fsbank回调事件接收中取出以通知原调用者)，并向fsbank购买债券，并告诉fsbank回调地址，在接收通知的模块中真正的计算

@@ -25,7 +25,7 @@ public class BDBankTransactionStub extends GatewayAppSiteRestStub implements IBD
 	}
 
 	@Override
-	public void invest(String bank, String invester, BigDecimal amount,EInvesterType type, String informAddress) {
+	public void invest(String bank, String invester, BigDecimal amount, EInvesterType type, String informAddress) {
 		IReactor reactor = getReactor();
 		Event e = new Event(bank, "transaction.invest");
 		e.getParameters().put("informAddress", informAddress);
@@ -36,16 +36,13 @@ public class BDBankTransactionStub extends GatewayAppSiteRestStub implements IBD
 	}
 
 	@Override
-	public void cashout(String bank, String balanceType, String cashoutor, String identity, BigDecimal reqAmount,
-			String memo, String informAddress) {
+	public void cashout(String bank, String cashoutor, BigDecimal amount, String memo, String informAddress) {
 		IReactor reactor = getReactor();
 		Event e = new Event(bank, "transaction.cashout");
 		e.getParameters().put("informAddress", informAddress);
 		e.getParameters().put("cashoutor", cashoutor);
-		e.getParameters().put("reqAmount", reqAmount);
-		e.getParameters().put("identity", identity);
+		e.getParameters().put("amount", amount);
 		e.getParameters().put("memo", memo);
-		e.getParameters().put("balanceType", balanceType);
 		reactor.input(e);
 	}
 

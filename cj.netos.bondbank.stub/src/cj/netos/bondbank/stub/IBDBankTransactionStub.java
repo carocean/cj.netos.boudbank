@@ -20,10 +20,8 @@ public interface IBDBankTransactionStub {
 
 	@CjStubMethod(usage = "提现")
 	void cashout(@CjStubInParameter(key = "bank", usage = "银行标识") String bank,
-			@CjStubInParameter(key = "balanceType", usage = "提现的余额类型，只有三种：余额表的商户存款余额、自由金余额和尾金余额，分别是：companyBalance,freeBalance，tailBalance") String balanceType,
 			@CjStubInParameter(key = "cashoutor", usage = "提现人") String cashoutor,
-			@CjStubInParameter(key = "identity", usage = "提现人身份") String identity,
-			@CjStubInParameter(key = "reqAmount", usage = "请求金额") BigDecimal reqAmount,
+			@CjStubInParameter(key = "amount", usage = "请求金额") BigDecimal amount,
 			@CjStubInParameter(key = "memo", usage = "备注") String memo,
 			@CjStubInParameter(key = "informAddress", usage = "通知地址") String informAddress);
 

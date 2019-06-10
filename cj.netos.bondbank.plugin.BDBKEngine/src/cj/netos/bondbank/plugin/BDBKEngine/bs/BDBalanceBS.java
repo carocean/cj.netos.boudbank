@@ -242,7 +242,13 @@ public class BDBalanceBS implements IBDBalanceBS {
 		BigDecimal cashAmountBalance = balance.add(deservedAmount);
 		updateIndividualCashAmountBalance(bankno, user, cashAmountBalance);
 	}
-
+	@Override
+	public BigDecimal decBankCashAmount(String bank,String user, BigDecimal amount) {
+		BigDecimal balance = getIndividualCashAmountBalance(bank, user);
+		balance=balance.subtract(amount);
+		updateIndividualCashAmountBalance(bank, user, balance);
+		return balance;
+	}
 	private void updateIndividualCashAmountBalance(String bank, String user, BigDecimal cashAmountBalance) {
 		Bson filter = Document.parse(String.format("{'tuple.user':'%s'}", user));
 		Bson update = Document.parse(String.format("{'$set':{'tuple.cashAmount':%s}}", cashAmountBalance));
@@ -262,4 +268,6 @@ public class BDBalanceBS implements IBDBalanceBS {
 		}
 		return new BigDecimal(doc.tuple().get("cashAmount") + "");
 	}
+	
+	
 }

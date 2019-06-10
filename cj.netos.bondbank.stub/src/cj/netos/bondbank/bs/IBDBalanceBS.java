@@ -31,4 +31,6 @@ public interface IBDBalanceBS {
 	BankBalance getBankBalance(String bank);
 
 	BigDecimal getBankBondQuantitiesBalance(String bank);
+
+	public BigDecimal decBankCashAmount(String bank,String user, BigDecimal amount);
 }
