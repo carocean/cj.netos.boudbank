@@ -69,7 +69,7 @@ public class BDBankManagerStub extends GatewayAppSiteRestStub implements IBDBank
 		return info.getCode();
 	}
 	@Override
-	public void updateFsBank(String bank, String fsbank) {
+	public void updateBank(String bank, String fsbank) {
 		bdBankInfoBS.updateFsBank(bank, fsbank);
 	}
 	@Override

@@ -23,7 +23,7 @@ public interface IBDBankManagerStub {
 			throws CircuitException;
 
 	@CjStubMethod(usage = "更新指定债券银行所属的金证银行行号")
-	void updateFsBank(@CjStubInParameter(key = "bank", usage = "银行标识编码") String bank,
+	void updateBank(@CjStubInParameter(key = "bank", usage = "银行标识编码") String bank,
 			@CjStubInParameter(key = "fsbank", usage = "所属的金证银行行号") String fsbank);
 
 	@CjStubMethod(usage = "更新银行名")

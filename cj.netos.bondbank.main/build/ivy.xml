@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven">
-  <info organisation="cj.netos.bondbank" module="cj.netos.bondbank.main" revision="1.0.0" status="integration" publication="20190608141853">
+  <info organisation="cj.netos.bondbank" module="cj.netos.bondbank.main" revision="1.0.0" status="integration" publication="20190611010931">
     <description/>
   </info>
   <configurations>
