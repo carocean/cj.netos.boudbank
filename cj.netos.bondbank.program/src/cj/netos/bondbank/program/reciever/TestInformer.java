@@ -1,4 +1,4 @@
-package cj.netos.bondbank.program.reciever.transaction;
+package cj.netos.bondbank.program.reciever;
 
 import cj.studio.ecm.annotation.CjService;
 import cj.studio.ecm.net.Circuit;

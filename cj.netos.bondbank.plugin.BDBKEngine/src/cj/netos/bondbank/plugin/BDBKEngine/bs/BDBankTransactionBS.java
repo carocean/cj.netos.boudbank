@@ -5,13 +5,17 @@ import java.math.BigDecimal;
 import cj.lns.chip.sos.cube.framework.ICube;
 import cj.lns.chip.sos.cube.framework.TupleDocument;
 import cj.netos.bondbank.args.EInvesterType;
+import cj.netos.bondbank.args.ExchangeBill;
+import cj.netos.bondbank.args.IndividualBalance;
 import cj.netos.bondbank.args.InvestBill;
+import cj.netos.bondbank.bs.IBDBalanceBS;
 import cj.netos.bondbank.bs.IBDBankIndividualAssetBS;
 import cj.netos.bondbank.bs.IBDBankInfoBS;
 import cj.netos.bondbank.bs.IBDBankPropertiesBS;
 import cj.netos.bondbank.bs.IBDBankTransactionBS;
 import cj.netos.bondbank.util.BigDecimalConstants;
 import cj.netos.fsbank.stub.IFSBankTransactionStub;
+import cj.studio.ecm.EcmException;
 import cj.studio.ecm.IServiceSite;
 import cj.studio.ecm.annotation.CjBridge;
 import cj.studio.ecm.annotation.CjService;
@@ -26,6 +30,8 @@ public class BDBankTransactionBS implements IBDBankTransactionBS, BigDecimalCons
 	IServiceSite site;
 	@CjServiceRef
 	IBDBankPropertiesBS bdBankPropertiesBS;
+	@CjServiceRef
+	IBDBalanceBS bdBalanceBS;
 	@CjServiceRef
 	IBDBankInfoBS bdBankInfoBS;
 	@CjServiceRef
@@ -63,7 +69,7 @@ public class BDBankTransactionBS implements IBDBankTransactionBS, BigDecimalCons
 		BigDecimal buyBondAmount = null;
 		if (bill.getType() == EInvesterType.customer) {
 			bill.setMerchantBondRate(new BigDecimal(0));
-			bill.setMerchantBondAmount(new BigDecimal(0));//消费者投白单时，商户不能得现金
+			bill.setMerchantBondAmount(new BigDecimal(0));// 消费者投白单时，商户不能得现金
 			BigDecimal feeRate = feeRate(bdBankPropertiesBS, bank);
 			bill.setFeeBondRate(feeRate);
 			bill.setMerchantBondRate(feeRate);
@@ -111,12 +117,35 @@ public class BDBankTransactionBS implements IBDBankTransactionBS, BigDecimalCons
 	}
 
 	@Override
-	public void exchangeBill(String key, String exchanger, BigDecimal bondQuantities, String informAddress) {
-		// TODO Auto-generated method stub
+	public void exchangeBill(String bank, String exchanger, BigDecimal bondQuantities, String informAddress) {
+		// 检查、并发起向金证银行的承兑申请,真正的扣账在exchangeInformer中执行
+
+		IndividualBalance balance = bdBalanceBS.getIndividualBalance(bank, exchanger);
+		BigDecimal bqBalance = balance.getBondQuantities();
+		if (bqBalance.compareTo(bondQuantities) < 0) {
+			throw new EcmException(String.format("失败。余额不足：%s<%s", bondQuantities, bqBalance));
+		}
+		ExchangeBill bill = new ExchangeBill();
+		bill.setBondQuantities(bondQuantities);
+		bill.setEtime(System.currentTimeMillis());
+		bill.setExchanger(exchanger);
+		ICube cubeBank = getBankCube(bank);
+		String id = cubeBank.saveDoc(TABLE_Exchanges, new TupleDocument<>(bill));
+		bill.setCode(id);
+
+		String fsbankInformAddress = String.format("%s?bankno=%s%sbillno=%s",
+				site.getProperty("transaction_exchangeBill_informAddress"), bank, "%26", id);// 由当前项目接收
+		try {
+			String fsbankno = this.bdBankInfoBS.getBankInfo(bank).getFsbank();
+			fsBankTransactionStub.exchange(fsbankno, exchanger, bondQuantities, fsbankInformAddress);
+		} catch (Exception e) {
+			cubeBank.deleteDoc(TABLE_Exchanges, id);
+			throw e;
+		}
 	}
 
 	@Override
-	public void issueStockBill(String key, String issuer, BigDecimal bondQuantities, String informAddress) {
+	public void issueStockBill(String bank, String issuer, BigDecimal bondQuantities, String informAddress) {
 		// TODO Auto-generated method stub
 	}
 

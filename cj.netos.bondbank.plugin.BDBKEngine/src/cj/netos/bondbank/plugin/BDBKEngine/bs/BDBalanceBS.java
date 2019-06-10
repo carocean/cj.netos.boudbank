@@ -16,6 +16,7 @@ import cj.netos.bondbank.args.BankInfo;
 import cj.netos.bondbank.args.BondQuantitiesStock;
 import cj.netos.bondbank.args.EInvesterType;
 import cj.netos.bondbank.args.ESourceType;
+import cj.netos.bondbank.args.ExchangeBill;
 import cj.netos.bondbank.args.IndividualBalance;
 import cj.netos.bondbank.args.InvestBill;
 import cj.netos.bondbank.bs.IBDBalanceBS;
@@ -78,7 +79,7 @@ public class BDBalanceBS implements IBDBalanceBS {
 		}
 		return doc.tuple();
 	}
-
+	
 	private void addIndividualBalance(String bank, InvestBill bill) {// 一个银行的一个用户只有一条余额记录
 		BankInfo info = bdBankInfoBS.getBankInfo(bank);
 		String president = info.getPresident();
@@ -94,7 +95,7 @@ public class BDBalanceBS implements IBDBalanceBS {
 	private void addToMerchantBalance(String bank, String user, InvestBill bill) {
 		IndividualBalance balance = getIndividualBalance(bank, user);
 		balance.setBondQuantities(balance.getBondQuantities().add(bill.getMerchantBondQuantities()));
-		balance.setFreeAmount(balance.getFreeAmount()
+		balance.setCashAmount(balance.getCashAmount()
 				.add(bill.getMerchantSelfAmount() == null ? new BigDecimal(0) : bill.getMerchantSelfAmount()));
 		updateIndividualBalance(bank, user, balance);
 		addBondQuantitiesStock(bank, user, bill.getCode(), bill.getMerchantBondQuantities(), bill.getBondFaceValue());
@@ -103,7 +104,7 @@ public class BDBalanceBS implements IBDBalanceBS {
 	private void addToCustomerBalance(String bank, String user, InvestBill bill) {
 		IndividualBalance balance = getIndividualBalance(bank, user);
 		balance.setBondQuantities(balance.getBondQuantities().add(bill.getCustomerBondQuantities()));
-		balance.setFreeAmount(balance.getFreeAmount()
+		balance.setCashAmount(balance.getCashAmount()
 				.add(bill.getCustomerBondAmount() == null ? new BigDecimal(0) : bill.getCustomerBondAmount()));
 		updateIndividualBalance(bank, user, balance);
 		addBondQuantitiesStock(bank, user, bill.getCode(), bill.getCustomerBondQuantities(), bill.getBondFaceValue());
@@ -127,8 +128,8 @@ public class BDBalanceBS implements IBDBalanceBS {
 		op.upsert(true);
 		getBankCube(bank).updateDocOne(TABLE_IndividualBalance, filter, update, op);
 	}
-
-	private IndividualBalance getIndividualBalance(String bank, String user) {
+	@Override
+	public IndividualBalance getIndividualBalance(String bank, String user) {
 		String cjql = String.format("select {'tuple':'*'} from tuple %s %s where {'tuple.user':'%s'}",
 				TABLE_IndividualBalance, IndividualBalance.class.getName(), user);
 		IQuery<IndividualBalance> q = getBankCube(bank).createQuery(cjql);
@@ -136,11 +137,15 @@ public class BDBalanceBS implements IBDBalanceBS {
 		if (doc == null || doc.tuple() == null) {
 			IndividualBalance balance = new IndividualBalance();
 			balance.setBondQuantities(new BigDecimal(0));
-			balance.setFreeAmount(new BigDecimal(0));
+			balance.setCashAmount(new BigDecimal(0));
 			balance.setUser(user);
 			return balance;
 		}
 		return doc.tuple();
 	}
-
+	@Override
+	public void onAddExchangeBill(String bankno, ExchangeBill bill) {
+		// 正式扣除个人及银行的债券，并存入承兑后的现金
+		
+	}
 }

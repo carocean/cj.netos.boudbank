@@ -72,7 +72,7 @@ public class InvestInformer implements IGatewayAppSiteWayWebView {
 		BigDecimal merchantBondQuantities = bondQuantities.multiply(bill.getMerchantBondRate());
 		this.bdBankInvestBillBS.updateMerchantBondQuantities(bankno, billno, merchantBondQuantities);
 		
-		BigDecimal bondPrice = new BigDecimal(response.get("oldBondPrice") + "");
+		BigDecimal bondPrice = new BigDecimal(response.get("dealBondPrice") + "");
 		this.bdBankInvestBillBS.updateBondPrice(bankno, billno, bondPrice);
 
 		bill.setBondQuantities(bondQuantities);
@@ -111,7 +111,7 @@ public class InvestInformer implements IGatewayAppSiteWayWebView {
 				BigDecimalConstants.scale, BigDecimalConstants.roundingMode));
 		this.bdBankInvestBillBS.updateCustomerBondQuantities(bankno, billno, customerBondQuantities);
 
-		BigDecimal bondPrice = new BigDecimal(response.get("oldBondPrice") + "");
+		BigDecimal bondPrice = new BigDecimal(response.get("dealBondPrice") + "");
 		this.bdBankInvestBillBS.updateBondPrice(bankno, billno, bondPrice);
 
 		bill.setBondQuantities(bondQuantities);

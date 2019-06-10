@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 public class IndividualBalance {
 	String user;
-	BigDecimal freeAmount;//现金余额
+	BigDecimal cashAmount;//现金余额
 	BigDecimal bondQuantities;//债券余额
 	public BigDecimal getBondQuantities() {
 		return bondQuantities;
@@ -12,11 +12,11 @@ public class IndividualBalance {
 	public void setBondQuantities(BigDecimal bondQuantities) {
 		this.bondQuantities = bondQuantities;
 	}
-	public BigDecimal getFreeAmount() {
-		return freeAmount;
+	public BigDecimal getCashAmount() {
+		return cashAmount;
 	}
-	public void setFreeAmount(BigDecimal freeAmount) {
-		this.freeAmount = freeAmount;
+	public void setCashAmount(BigDecimal cashAmount) {
+		this.cashAmount = cashAmount;
 	}
 	public String getUser() {
 		return user;
