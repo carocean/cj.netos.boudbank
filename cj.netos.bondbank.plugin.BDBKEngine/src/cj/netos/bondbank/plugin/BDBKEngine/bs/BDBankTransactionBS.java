@@ -129,6 +129,7 @@ public class BDBankTransactionBS implements IBDBankTransactionBS, BigDecimalCons
 		bill.setBondQuantities(bondQuantities);
 		bill.setEtime(System.currentTimeMillis());
 		bill.setExchanger(exchanger);
+		bill.setInformAddress(informAddress);
 		ICube cubeBank = getBankCube(bank);
 		String id = cubeBank.saveDoc(TABLE_Exchanges, new TupleDocument<>(bill));
 		bill.setCode(id);

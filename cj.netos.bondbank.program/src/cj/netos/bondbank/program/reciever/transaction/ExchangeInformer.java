@@ -55,8 +55,11 @@ public class ExchangeInformer implements IGatewayAppSiteWayWebView {
 		bill.setBondQuantities(new BigDecimal(response.get("dealBondQuantities") + ""));
 		bill.setDeservedAmount(new BigDecimal(response.get("deservedAmount") + ""));
 		bill.setSource(response.get("billno") + "");
-		bill.setDealTime(new Long(response.get("dealtime") + ""));
+		bill.setDealTime(new BigDecimal(response.get("dealtime") + "").longValue());
 		bdBalanceBS.onAddExchangeBill(bankno, bill);
+		
+//		String informAddress=bill.getInformAddress();//结束后向调用者发起通知
+		
 	}
 
 }

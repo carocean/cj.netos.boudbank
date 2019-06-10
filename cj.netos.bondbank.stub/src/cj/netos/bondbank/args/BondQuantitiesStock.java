@@ -6,8 +6,15 @@ public class BondQuantitiesStock {
 	String user;
 	String source;//投单号
 	ESourceType type;
-	BigDecimal bondQuantities;//债券存量是统计出来
+	BigDecimal bondQuantities;//债券存量是统计出来w
 	BigDecimal bondFaceValue;//面值
+	long ctime;
+	public long getCtime() {
+		return ctime;
+	}
+	public void setCtime(long ctime) {
+		this.ctime = ctime;
+	}
 	public String getUser() {
 		return user;
 	}

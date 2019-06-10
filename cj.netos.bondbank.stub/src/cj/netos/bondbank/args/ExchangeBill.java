@@ -11,6 +11,13 @@ public class ExchangeBill {
 	long etime;
 	String source;//来源于fsbank的承兑单号
 	long dealTime;
+	String informAddress;
+	public String getInformAddress() {
+		return informAddress;
+	}
+	public void setInformAddress(String informAddress) {
+		this.informAddress = informAddress;
+	}
 	public long getDealTime() {
 		return dealTime;
 	}
