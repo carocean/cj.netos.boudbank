@@ -11,7 +11,14 @@ public class ExchangeBill {
 	long etime;
 	String source;//来源于fsbank的承兑单号
 	long dealTime;
+	BigDecimal balance;//承兑后余额
 	String informAddress;
+	public BigDecimal getBalance() {
+		return balance;
+	}
+	public void setBalance(BigDecimal balance) {
+		this.balance = balance;
+	}
 	public String getInformAddress() {
 		return informAddress;
 	}

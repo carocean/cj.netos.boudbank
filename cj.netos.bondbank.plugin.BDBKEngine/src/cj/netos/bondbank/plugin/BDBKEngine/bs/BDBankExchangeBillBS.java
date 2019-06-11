@@ -3,13 +3,15 @@ package cj.netos.bondbank.plugin.BDBKEngine.bs;
 import cj.lns.chip.sos.cube.framework.ICube;
 import cj.lns.chip.sos.cube.framework.IDocument;
 import cj.lns.chip.sos.cube.framework.IQuery;
+import cj.lns.chip.sos.cube.framework.TupleDocument;
 import cj.netos.bondbank.args.ExchangeBill;
 import cj.netos.bondbank.bs.IBDBankExchangeBillBS;
 import cj.netos.bondbank.bs.IBDBankTransactionBS;
 import cj.studio.ecm.IServiceSite;
 import cj.studio.ecm.annotation.CjService;
 import cj.studio.ecm.annotation.CjServiceSite;
-@CjService(name="bdBankExchangeBillBS")
+
+@CjService(name = "bdBankExchangeBillBS")
 public class BDBankExchangeBillBS implements IBDBankExchangeBillBS {
 	private ICube cubeBank;
 	@CjServiceSite
@@ -22,6 +24,7 @@ public class BDBankExchangeBillBS implements IBDBankExchangeBillBS {
 		cubeBank = (ICube) site.getService("mongodb.bdbank." + bank + ":autocreate");
 		return cubeBank;
 	}
+
 	@Override
 	public ExchangeBill getBill(String bankno, String billno) {
 		String cjql = String.format("select {'tuple':'*'} from tuple %s %s where {'_id':ObjectId('%s')}",
@@ -32,6 +35,13 @@ public class BDBankExchangeBillBS implements IBDBankExchangeBillBS {
 			return null;
 		doc.tuple().setCode(doc.docid());
 		return doc.tuple();
+	}
+
+	@Override
+	public void update(String bankno, ExchangeBill bill) {
+		String no = bill.getCode();
+		bill.setCode(null);
+		getBankCube(bankno).updateDoc(IBDBankTransactionBS.TABLE_Exchanges, no, new TupleDocument<>(bill));
 	}
 
 }

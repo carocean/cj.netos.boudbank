@@ -23,11 +23,16 @@ public class InvestBill {
 	BigDecimal bondPrice;// 当时买债时的债券价格
 	BigDecimal tailAmount;// 尾金
 	String informAddress;// 因为是异步的，而且买债也是异步的，所以将第一个异步通知地址记录下来
-
+	BigDecimal bondQuantitiesBalance;//投单后余额
 	public InvestBill() {
 		type = EInvesterType.merchant;
 	}
-
+	public BigDecimal getBondQuantitiesBalance() {
+		return bondQuantitiesBalance;
+	}
+	public void setBondQuantitiesBalance(BigDecimal bondQuantitiesBalance) {
+		this.bondQuantitiesBalance = bondQuantitiesBalance;
+	}
 	public BigDecimal getMerchantBondQuantities() {
 		return merchantBondQuantities;
 	}

@@ -73,4 +73,10 @@ public class BDBankInvestBillBS implements IBDBankInvestBillBS {
 		Bson update = Document.parse(String.format("{'$set':{'tuple.bondPrice':'%s'}}", bondPrice));
 		getBankCube(bank).updateDocOne(IBDBankTransactionBS.TABLE_Invests, filter, update);
 	}
+	@Override
+	public void updateBondQuantitiesBalance(String bank, String billno, BigDecimal bondQuantitiesBalance) {
+		Bson filter = Document.parse(String.format("{'_id':ObjectId('%s')}", billno));
+		Bson update = Document.parse(String.format("{'$set':{'tuple.BondQuantitiesBalance':'%s'}}", bondQuantitiesBalance));
+		getBankCube(bank).updateDocOne(IBDBankTransactionBS.TABLE_Invests, filter, update);
+	}
 }

@@ -6,4 +6,6 @@ public interface IBDBankExchangeBillBS {
 
 	ExchangeBill getBill(String bankno, String billno);
 
+	void update(String bankno, ExchangeBill bill);
+	
 }

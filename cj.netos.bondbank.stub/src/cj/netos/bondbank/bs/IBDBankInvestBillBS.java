@@ -18,4 +18,6 @@ public interface IBDBankInvestBillBS {
 
 	void updateBondPrice(String bank, String billno, BigDecimal bondPrice);
 
+	void updateBondQuantitiesBalance(String bankno, String billno, BigDecimal balance);
+
 }

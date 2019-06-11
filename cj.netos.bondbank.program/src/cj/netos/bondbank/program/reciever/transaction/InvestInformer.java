@@ -83,6 +83,10 @@ public class InvestInformer implements IGatewayAppSiteWayWebView {
 
 		// 各种余额更新
 		this.bdBalanceBS.onAddInvestBill(bankno,bill);//增加银行及个人各类余额
+		BigDecimal balance=this.bdBalanceBS.getIndividualBondQuantitiesBalance(bankno, bill.getInvester());
+		
+		bdBankInvestBillBS.updateBondQuantitiesBalance(bankno, billno,balance);
+		bill.setBondQuantitiesBalance(balance);
 		
 		String informAddress = bill.getInformAddress();
 		if (!StringUtil.isEmpty(informAddress)) {

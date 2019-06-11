@@ -11,7 +11,8 @@ public interface IBDBalanceBS {
 	static String TABLE_BankBalance = "balance.banks";
 	static String TABLE_IndividualBalance = "balance.individuals";
 	static String TABLE_Stock_BondQuantities = "stock.bondQuantities";
-
+	static String TABLE_Stock_BondQuantities_trans = "stock.bondQuantities.transactions";
+	
 	public void onAddInvestBill(String bankno, InvestBill bill);
 
 	public void onAddExchangeBill(String bankno, ExchangeBill bill);
@@ -24,7 +25,7 @@ public interface IBDBalanceBS {
 
 	BigDecimal getIndividualCashAmountBalance(String bankno, String user);
 
-	void decIndividualBondQuantities(String bankno, String user, BigDecimal bondQuantities);
+	void decIndividualBondQuantities(String bankno, String user,String outBillCode, BigDecimal bondQuantities);
 
 	void decBankBondQuantities(String bankno, BigDecimal bondQuantities);
 

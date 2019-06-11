@@ -16,8 +16,8 @@ import cj.lns.chip.sos.cube.framework.TupleDocument;
 import cj.netos.bondbank.args.BankBalance;
 import cj.netos.bondbank.args.BankInfo;
 import cj.netos.bondbank.args.BondQuantitiesStock;
+import cj.netos.bondbank.args.BondQuantitiesStockTransaction;
 import cj.netos.bondbank.args.EInvesterType;
-import cj.netos.bondbank.args.ESourceType;
 import cj.netos.bondbank.args.ExchangeBill;
 import cj.netos.bondbank.args.IndividualBalance;
 import cj.netos.bondbank.args.InvestBill;
@@ -67,6 +67,7 @@ public class BDBalanceBS implements IBDBalanceBS {
 		op.upsert(true);
 		getBankCube(bank).updateDocOne(TABLE_BankBalance, filter, update, op);
 	}
+
 	@Override
 	public BankBalance getBankBalance(String bank) {
 		String cjql = String.format("select {'tuple':'*'} from tuple %s %s where {}", TABLE_BankBalance,
@@ -100,7 +101,8 @@ public class BDBalanceBS implements IBDBalanceBS {
 		balance.setCashAmount(balance.getCashAmount()
 				.add(bill.getMerchantSelfAmount() == null ? new BigDecimal(0) : bill.getMerchantSelfAmount()));
 		updateIndividualBalance(bank, user, balance);
-		addBondQuantitiesStock(bank, user, bill.getCode(), bill.getMerchantBondQuantities(), bill.getBondFaceValue());
+		addBondQuantitiesStock(bank, user, bill.getCode(), bill.getMerchantBondQuantities(), bill.getBondFaceValue(),
+				balance.getBondQuantities());
 	}
 
 	private void addToCustomerBalance(String bank, String user, InvestBill bill) {
@@ -109,18 +111,21 @@ public class BDBalanceBS implements IBDBalanceBS {
 		balance.setCashAmount(balance.getCashAmount()
 				.add(bill.getCustomerBondAmount() == null ? new BigDecimal(0) : bill.getCustomerBondAmount()));
 		updateIndividualBalance(bank, user, balance);
-		addBondQuantitiesStock(bank, user, bill.getCode(), bill.getCustomerBondQuantities(), bill.getBondFaceValue());
+		addBondQuantitiesStock(bank, user, bill.getCode(), bill.getCustomerBondQuantities(), bill.getBondFaceValue(),
+				balance.getBondQuantities());
 	}
+
 	@Override
 	public void decBankBondQuantities(String bankno, BigDecimal bondQuantities) {
-		BigDecimal bondQuantitiesBalance= getBankBondQuantitiesBalance(bankno);
-		BigDecimal balance=bondQuantitiesBalance.subtract(bondQuantities);
-		updateBankBondQuantities(bankno,balance);
+		BigDecimal bondQuantitiesBalance = getBankBondQuantitiesBalance(bankno);
+		BigDecimal balance = bondQuantitiesBalance.subtract(bondQuantities);
+		updateBankBondQuantities(bankno, balance);
 	}
+
 	@Override
 	public BigDecimal getBankBondQuantitiesBalance(String bank) {
-		String cjql = String.format("select {'tuple.bondQuantities':1} from tuple %s %s where {}",
-				TABLE_BankBalance, HashMap.class.getName());
+		String cjql = String.format("select {'tuple.bondQuantities':1} from tuple %s %s where {}", TABLE_BankBalance,
+				HashMap.class.getName());
 		IQuery<HashMap<String, Object>> q = getBankCube(bank).createQuery(cjql);
 		IDocument<HashMap<String, Object>> doc = q.getSingleResult();
 		if (doc == null || doc.tuple() == null) {
@@ -128,7 +133,7 @@ public class BDBalanceBS implements IBDBalanceBS {
 		}
 		return new BigDecimal(doc.tuple().get("bondQuantities") + "");
 	}
-	
+
 	private void updateBankBondQuantities(String bank, BigDecimal balance) {
 		Bson filter = Document.parse(String.format("{}"));
 		Bson update = Document.parse(String.format("{'$set':{'tuple.bondQuantities':%s}}", balance));
@@ -138,41 +143,57 @@ public class BDBalanceBS implements IBDBalanceBS {
 	}
 
 	private void addBondQuantitiesStock(String bank, String user, String billno, BigDecimal bondQuantities,
-			BigDecimal bondFaceValue) {
+			BigDecimal bondFaceValue, BigDecimal balance) {
 		BondQuantitiesStock stock = new BondQuantitiesStock();
 		stock.setBondFaceValue(bondFaceValue);
 		stock.setBondQuantities(bondQuantities);
 		stock.setSource(billno);
 		stock.setUser(user);
 		stock.setCtime(System.currentTimeMillis());
-		stock.setType(ESourceType.investTable);
+		stock.setBalance(balance);
 		getBankCube(bank).saveDoc(TABLE_Stock_BondQuantities, new TupleDocument<>(stock));
 	}
 
-	private void decBondQuantitiesStock(String bank, String user, BigDecimal bondQuantities) {
-		//从最旧的开始扣起（就是删除旧记录，如果尾记录不够完全用完，则需拆单，直到最新
-		String cjql = String.format("select {'tuple':'*'}.sort({'tuple.ctime':1}) from tuple %s %s where {'tuple.user':'%s'}",
+	private void decBondQuantitiesStock(String bank, String user, String outBillCode, BigDecimal bondQuantities) {
+		// 从最旧的开始扣起（就是删除旧记录，如果尾记录不够完全用完，则需拆单，直到最新
+		String cjql = String.format(
+				"select {'tuple':'*'}.sort({'tuple.ctime':1}) from tuple %s %s where {'tuple.user':'%s'}",
 				TABLE_Stock_BondQuantities, BondQuantitiesStock.class.getName(), user);
 		IQuery<BondQuantitiesStock> q = getBankCube(bank).createQuery(cjql);
 		List<IDocument<BondQuantitiesStock>> docs = q.getResultList();
-		BigDecimal remaining=bondQuantities;
-		BigDecimal zero=new BigDecimal(0);
-		for(IDocument<BondQuantitiesStock> doc:docs) {
-			if(remaining.compareTo(zero)<=0) {
+		BigDecimal remaining = bondQuantities;
+		BigDecimal zero = new BigDecimal(0);
+		for (IDocument<BondQuantitiesStock> doc : docs) {
+			if (remaining.compareTo(zero) <= 0) {
 				break;
 			}
-			BigDecimal bq=doc.tuple().getBondQuantities();
-			if(remaining.compareTo(bq)>=0) {
-				remaining=remaining.subtract(bq);
+			BigDecimal bq = doc.tuple().getBondQuantities();
+			if (remaining.compareTo(bq) >= 0) {
+				remaining = remaining.subtract(bq);
 				getBankCube(bank).deleteDoc(TABLE_Stock_BondQuantities, doc.docid());
+				deductionBondQuantitiesStockTrans(bank, user, doc.tuple(), outBillCode, bq);
 				continue;
 			}
-			BigDecimal stock=bq.subtract(remaining);
+			BigDecimal stock = bq.subtract(remaining);
 			Bson filter = Document.parse(String.format("{'_id':ObjectId('%s')}", doc.docid()));
-			Bson update = Document.parse(String.format("{'$set':{'tuple.bondQuantities':%s}}", new Gson().toJson(stock)));
+			Bson update = Document
+					.parse(String.format("{'$set':{'tuple.bondQuantities':%s}}", new Gson().toJson(stock)));
 			getBankCube(bank).updateDocOne(TABLE_Stock_BondQuantities, filter, update);
+			deductionBondQuantitiesStockTrans(bank, user, doc.tuple(), outBillCode, stock);
 			break;
 		}
+	}
+
+	// 扣库存交易
+	private void deductionBondQuantitiesStockTrans(String bank, String user, BondQuantitiesStock tuple,
+			String outBillCode, BigDecimal stock) {
+		BondQuantitiesStockTransaction trans = new BondQuantitiesStockTransaction();
+		trans.setUser(user);
+		trans.setCtime(System.currentTimeMillis());
+		trans.setInbillno(tuple.getSource());
+		trans.setOutbillno(outBillCode);
+		trans.setQuantities(stock);
+		getBankCube(bank).saveDoc(TABLE_Stock_BondQuantities_trans, new TupleDocument<>(trans));
 	}
 
 	private void updateIndividualBalance(String bank, String user, IndividualBalance balance) {
@@ -202,18 +223,18 @@ public class BDBalanceBS implements IBDBalanceBS {
 	@Override
 	public void onAddExchangeBill(String bankno, ExchangeBill bill) {
 		// 正式扣除个人及银行的债券，并存入承兑后的现金
-		decIndividualBondQuantities(bankno, bill.getExchanger(), bill.getBondQuantities());
+		decIndividualBondQuantities(bankno, bill.getExchanger(), bill.getCode(), bill.getBondQuantities());
 		addIndividualCashAmount(bankno, bill.getExchanger(), bill.getDeservedAmount());
-		decBankBondQuantities(bankno,bill.getBondQuantities());
+		decBankBondQuantities(bankno, bill.getBondQuantities());
 	}
 
-
 	@Override
-	public void decIndividualBondQuantities(String bankno, String user, BigDecimal bondQuantities) {
+	public void decIndividualBondQuantities(String bankno, String user,
+			String outBillCode/* 出库单号，可能是：承兑单或发行单,类型加在单号前，以#分隔 */, BigDecimal bondQuantities) {
 		BigDecimal balance = getIndividualBondQuantitiesBalance(bankno, user);
 		BigDecimal bondQuantitiesBalance = balance.subtract(bondQuantities);
 		updateIndividualBondQuantitiesBalance(bankno, user, bondQuantitiesBalance);
-		decBondQuantitiesStock(bankno, user, bondQuantities);
+		decBondQuantitiesStock(bankno, user, outBillCode, bondQuantities);
 	}
 
 	private void updateIndividualBondQuantitiesBalance(String bank, String user, BigDecimal bondQuantitiesBalance) {
@@ -242,13 +263,15 @@ public class BDBalanceBS implements IBDBalanceBS {
 		BigDecimal cashAmountBalance = balance.add(deservedAmount);
 		updateIndividualCashAmountBalance(bankno, user, cashAmountBalance);
 	}
+
 	@Override
-	public BigDecimal decBankCashAmount(String bank,String user, BigDecimal amount) {
+	public BigDecimal decBankCashAmount(String bank, String user, BigDecimal amount) {
 		BigDecimal balance = getIndividualCashAmountBalance(bank, user);
-		balance=balance.subtract(amount);
+		balance = balance.subtract(amount);
 		updateIndividualCashAmountBalance(bank, user, balance);
 		return balance;
 	}
+
 	private void updateIndividualCashAmountBalance(String bank, String user, BigDecimal cashAmountBalance) {
 		Bson filter = Document.parse(String.format("{'tuple.user':'%s'}", user));
 		Bson update = Document.parse(String.format("{'$set':{'tuple.cashAmount':%s}}", cashAmountBalance));
@@ -268,6 +291,5 @@ public class BDBalanceBS implements IBDBalanceBS {
 		}
 		return new BigDecimal(doc.tuple().get("cashAmount") + "");
 	}
-	
-	
+
 }
