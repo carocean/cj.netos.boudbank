@@ -2,6 +2,7 @@ package cj.netos.bondbank.args;
 
 import java.math.BigDecimal;
 
+//入库流水单：InvestBill（有余额字段）,出库流水单：ExchangeBill（有余额字段）或IssueBill（有余额字段）,存量单：BondQuantitiesStock,存量交易流水表(拉链表）：BondQuantitiesStockTranscation,余额表：IndividualBalance
 //债券出入库存量表。入库是增加记录，出库是删除和拆分记录
 public class BondQuantitiesStock {
 	String user;
