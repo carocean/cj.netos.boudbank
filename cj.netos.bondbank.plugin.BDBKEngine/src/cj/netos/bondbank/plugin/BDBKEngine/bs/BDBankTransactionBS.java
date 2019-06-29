@@ -130,7 +130,7 @@ public class BDBankTransactionBS implements IBDBankTransactionBS, BigDecimalCons
 				site.getProperty("transaction_investBill_informAddress"), bank, "%26", id);// 由当前项目接收
 		try {
 			String fsbankno = this.bdBankInfoBS.getBankInfo(bank).getFsbank();
-			fsBankTransactionStub.deposit(fsbankno, invester, buyBondAmount, fsbankInformAddress);
+			fsBankTransactionStub.deposit(fsbankno, invester, buyBondAmount,new BigDecimal("0.00"), fsbankInformAddress);
 		} catch (Exception e) {
 			cubeBank.deleteDoc(TABLE_Invests, id);
 			throw e;
